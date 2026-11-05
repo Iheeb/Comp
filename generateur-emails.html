@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Générateur d’e-mails – Service Client</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Source+Serif+4:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#E8ECEF; --panel:#F6F8F9; --paper:#FFFFFF; --ink:#1B2430; --muted:#5B6773;
+  --line:#C6CFD6; --accent:#1F4E5F; --accent-ink:#FFFFFF; --field:#FFFFFF; --sel:#DCE7EB;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12171C; --panel:#192027; --paper:#1F272F; --ink:#E6EBEF; --muted:#9AA6B1;
+    --line:#33404B; --accent:#7FB5C7; --accent-ink:#0F1A20; --field:#12171C; --sel:#24333B;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12171C; --panel:#192027; --paper:#1F272F; --ink:#E6EBEF; --muted:#9AA6B1;
+  --line:#33404B; --accent:#7FB5C7; --accent-ink:#0F1A20; --field:#12171C; --sel:#24333B;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Instrument Sans",system-ui,sans-serif}
+.app{display:grid;grid-template-columns:minmax(300px,360px) 1fr;gap:20px;max-width:1080px;margin:0 auto;padding:24px 16px}
+@media (max-width:760px){.app{grid-template-columns:1fr}}
+aside{background:var(--panel);border:1px solid var(--line);padding:18px;align-self:start}
+h1{font-size:17px;font-weight:600;margin:0 0 16px}
+fieldset{border:0;margin:0 0 18px;padding:0}
+legend,.lbl{font-size:13px;font-weight:600;color:var(--muted);padding:0;margin-bottom:6px;display:block}
+.types label{display:block;border:1px solid var(--line);border-left:4px solid var(--line);padding:9px 12px;margin-bottom:6px;cursor:pointer;background:var(--field)}
+.types label:has(input:checked){border-left-color:var(--accent);background:var(--sel)}
+.types label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.types input{position:absolute;opacity:0;pointer-events:none}
+.types b{display:block;font-weight:600}
+.types span{font-size:13px;color:var(--muted)}
+input[type=text],textarea.motif,select{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);padding:9px 10px;border-radius:0}
+input[type=text]:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:grid;grid-template-columns:130px 1fr;gap:8px;margin-bottom:18px}
+.docs label{display:flex;gap:10px;align-items:center;padding:7px 0;cursor:pointer}
+.docs input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.hidden{display:none}
+main{display:flex;flex-direction:column;gap:12px}
+.bar{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;font-weight:500;padding:9px 14px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer;border-radius:0}
+button.alt{background:transparent;color:var(--accent)}
+.paper{background:var(--paper);border:1px solid var(--line);padding:20px 24px;font-family:"Source Serif 4",Georgia,serif}
+.obj{display:flex;gap:10px;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:12px;font-family:"Instrument Sans",sans-serif}
+.obj span{color:var(--muted);font-size:13px;font-weight:600}
+.obj input{flex:1;border:0;background:transparent;font:inherit;font-weight:600;color:var(--ink);padding:0}
+textarea.body{width:100%;min-height:440px;border:0;resize:vertical;background:transparent;color:var(--ink);font:17px/1.65 "Source Serif 4",Georgia,serif;padding:0}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.warn{color:#9A3412}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .warn{color:#F0A66B}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <h1>E-mail client</h1>
+
+  <fieldset class="types" id="types">
+    <legend>Type d’e-mail</legend>
+    <label><input type="radio" name="type" value="docs" checked><b>Demande de documents</b><span>Pièces à fournir pour le dossier</span></label>
+    <label><input type="radio" name="type" value="ar"><b>Accusé de réception</b><span>Demande bien reçue</span></label>
+    <label><input type="radio" name="type" value="suivi"><b>Dossier en cours de traitement</b><span>Nous vous recontactons dès du nouveau</span></label>
+    <label><input type="radio" name="type" value="refus"><b>Refus de prise en charge</b><span>Réponse négative, ton empathique</span></label>
+  </fieldset>
+
+  <div class="row">
+    <div><label class="lbl" for="civ">Civilité</label>
+      <select id="civ"><option>Monsieur</option><option>Madame</option><option value="">Aucune</option></select></div>
+    <div><label class="lbl" for="nom">Nom du destinataire</label>
+      <input type="text" id="nom" autocomplete="off" placeholder="Ex. Ben Salah"></div>
+  </div>
+
+  <div style="margin-bottom:18px">
+    <label class="lbl" for="dossier">Numéro de dossier</label>
+    <input type="text" id="dossier" autocomplete="off" placeholder="Ex. 2026-004512">
+  </div>
+
+  <fieldset class="docs" id="docsBox">
+    <legend>Documents demandés</legend>
+    <label><input type="checkbox" value="Carte grise"> Carte grise</label>
+    <label><input type="checkbox" value="Devis de réparation/entretien"> Devis de réparation/entretien</label>
+    <label><input type="checkbox" value="Dernières factures de réparation"> Dernières factures de réparation</label>
+    <label><input type="checkbox" value="Bon de commande"> Bon de commande</label>
+  </fieldset>
+
+  <div id="motifBox" class="hidden">
+    <label class="lbl" for="motif">Motif du refus (facultatif)</label>
+    <textarea id="motif" class="motif" rows="3" placeholder="Ex. le véhicule n’entre pas dans le périmètre de la garantie"></textarea>
+  </div>
+</aside>
+
+<main>
+  <div class="bar">
+    <button id="copyAll">Copier l’e-mail</button>
+    <button id="copyBody" class="alt">Copier le corps seul</button>
+    <span id="status" class="hint" role="status" style="align-self:center"></span>
+  </div>
+  <div class="paper">
+    <div class="obj"><span>Objet</span><input id="objet" type="text" aria-label="Objet"></div>
+    <textarea id="body" class="body" aria-label="Corps du message"></textarea>
+  </div>
+  <p class="hint">Le texte est modifiable avant la copie. Changer un réglage à gauche régénère le message.</p>
+</main>
+</div>
+
+<script>
+const SIGN = "Cordialement,\n\nService Client\nIHEB B.A";
+const T = {
+  docs: {
+    objet: "Demande de documents complémentaires",
+    body: (d, x) => [
+      "Nous vous remercions de la confiance que vous nous accordez et comprenons que les démarches administratives puissent parfois sembler contraignantes. Soyez assuré(e) que nous mettons tout en œuvre pour traiter votre dossier dans les meilleurs délais.",
+      "Afin de poursuivre l’étude de votre demande, nous vous prions de bien vouloir nous transmettre les documents suivants :\n\n" + (x.docs.length ? x.docs.map(s => "- " + s).join("\n") : "- [Sélectionnez au moins un document]"),
+      "Dès réception de ces éléments, nous reprendrons le traitement de votre dossier sans délai.",
+      "Nous restons à votre entière disposition pour toute information complémentaire et vous prions d’agréer l’expression de notre considération distinguée."
+    ]
+  },
+  ar: {
+    objet: "Accusé de réception de votre demande",
+    body: () => [
+      "Nous accusons bonne réception de votre demande et vous remercions de nous l’avoir adressée. Nous mesurons l’importance que revêt ce dossier pour vous et nous engageons à lui accorder toute l’attention qu’il mérite.",
+      "Votre demande est en cours d’examen par nos équipes. Nous reviendrons vers vous dans les meilleurs délais.",
+      "Nous restons à votre entière disposition pour toute question et vous prions d’agréer l’expression de notre considération distinguée."
+    ]
+  },
+  suivi: {
+    objet: "Suivi de votre demande – dossier en cours de traitement",
+    body: () => [
+      "Nous vous remercions de votre patience et comprenons tout à fait l’attente que cette situation peut représenter pour vous.",
+      "Nous vous informons que votre dossier est toujours en cours de traitement par nos équipes. Nous reviendrons vers vous dès qu’une nouvelle information sera disponible.",
+      "Nous vous remercions de votre compréhension et restons à votre entière disposition pour toute question. Veuillez agréer l’expression de notre considération distinguée."
+    ]
+  },
+  refus: {
+    objet: "Réponse à votre demande de prise en charge",
+    body: (d, x) => [
+      "Nous vous remercions de votre demande et avons examiné votre dossier avec la plus grande attention. Nous comprenons pleinement l’importance de cette démarche pour vous et mesurons la gêne que cette situation peut occasionner.",
+      "Nous sommes néanmoins au regret de vous informer que nous ne sommes pas en mesure de donner une suite favorable à votre demande de prise en charge." + (x.motif ? " Cette décision est motivée par le point suivant : " + x.motif.replace(/[.\s]+$/, "") + "." : ""),
+      "Nous sommes sincèrement désolés de ne pouvoir répondre favorablement à votre attente. Notre équipe reste à votre disposition pour échanger avec vous et vous apporter toute précision utile.",
+      "Nous vous prions de croire en l’expression de notre considération distinguée."
+    ]
+  }
+};
+
+const $ = id => document.getElementById(id);
+const state = () => ({
+  type: document.querySelector("input[name=type]:checked").value,
+  civ: $("civ").value, nom: $("nom").value.trim(),
+  docs: [...document.querySelectorAll("#docsBox input:checked")].map(i => i.value),
+  motif: $("motif").value.trim(), dossier: $("dossier").value.trim()
+});
+
+function render() {
+  const s = state(), t = T[s.type];
+  $("docsBox").classList.toggle("hidden", s.type !== "docs");
+  $("motifBox").classList.toggle("hidden", s.type !== "refus");
+  const who = [s.civ, s.nom].filter(Boolean).join(" ");
+  const hello = "Bonjour" + (who ? " " + who : "") + ",";
+  $("objet").value = t.objet + (s.dossier ? " – Dossier n° " + s.dossier : "");
+  $("body").value = [hello, ...(s.dossier ? ["Référence : dossier n° " + s.dossier] : []), ...t.body(null, s), SIGN].join("\n\n").replace("Cordialement,\n\n\nService", "Cordialement,\n\nService");
+}
+
+function copy(text, msg) {
+  const done = () => { $("status").textContent = msg; setTimeout(() => $("status").textContent = "", 2200); };
+  const fallback = () => { const a = document.createElement("textarea"); a.value = text; document.body.appendChild(a); a.select(); try { document.execCommand("copy"); done(); } catch (e) {} a.remove(); };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+}
+
+document.querySelectorAll("aside input, aside select, aside textarea").forEach(el => el.addEventListener("input", render));
+$("copyAll").onclick = () => copy("Objet : " + $("objet").value + "\n\n" + $("body").value, "E-mail copié");
+$("copyBody").onclick = () => copy($("body").value, "Corps copié");
+render();
+</script>
+</body>
+</html>
