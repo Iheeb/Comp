@@ -66,7 +66,10 @@ textarea.body{width:100%;min-height:440px;border:0;resize:vertical;background:tr
     <label><input type="radio" name="type" value="docs" checked><b>Demande de documents</b><span>Pièces à fournir pour le dossier</span></label>
     <label><input type="radio" name="type" value="ar"><b>Accusé de réception</b><span>Demande bien reçue</span></label>
     <label><input type="radio" name="type" value="suivi"><b>Dossier en cours de traitement</b><span>Nous vous recontactons dès du nouveau</span></label>
+    <label><input type="radio" name="type" value="geste"><b>En attente du geste commercial</b><span>Dossier en étude, retour de la cellule dédiée</span></label>
     <label><input type="radio" name="type" value="refus"><b>Refus de prise en charge</b><span>Réponse négative, ton empathique</span></label>
+    <label><input type="radio" name="type" value="inelig"><b>Refus – non-éligibilité</b><span>Conditions d’éligibilité non remplies</span></label>
+    <label><input type="radio" name="type" value="cloture"><b>Clôture – sans réponse du client</b><span>Dossier clôturé faute de retour</span></label>
   </fieldset>
 
   <div class="row">
@@ -137,6 +140,34 @@ const T = {
       "Nous vous remercions de votre compréhension et restons à votre entière disposition pour toute question. Veuillez agréer l’expression de notre considération distinguée."
     ]
   },
+  geste: {
+    objet: "Suivi de votre demande – dossier en cours d’étude",
+    sign: "Bien cordialement,",
+    body: () => [
+      "Nous vous remercions sincèrement pour votre patience et votre compréhension.",
+      "Nous tenons à vous informer que votre dossier est bien en cours d’étude. Nous sommes actuellement dans l’attente du retour de la cellule dédiée au traitement des demandes de geste commercial.",
+      "Dès que nous aurons leur réponse, nous reviendrons vers vous dans les plus brefs délais.",
+      "Restant à votre entière disposition,"
+    ]
+  },
+  inelig: {
+    objet: "Réponse à votre demande de prise en charge",
+    body: (d, x) => [
+      "Nous vous remercions de votre demande et avons étudié votre dossier avec la plus grande attention. Nous comprenons l’importance de cette démarche pour vous et mesurons la déception que cette réponse peut susciter.",
+      "Après examen, nous sommes au regret de vous informer que votre dossier ne remplit pas les conditions d’éligibilité requises pour bénéficier d’une prise en charge" + (x.motif ? " : " + x.motif.replace(/[.\s]+$/, "") : "") + ". Nous ne sommes donc pas en mesure de donner une suite favorable à votre demande.",
+      "Nous sommes sincèrement désolés de ne pouvoir répondre favorablement à votre attente. Notre équipe reste à votre disposition pour vous apporter toute précision utile concernant cette décision.",
+      "Nous vous prions d’agréer l’expression de notre considération distinguée."
+    ]
+  },
+  cloture: {
+    objet: "Clôture de votre dossier",
+    body: () => [
+      "Nous faisons suite à nos précédents échanges concernant votre dossier. Nous comprenons que votre emploi du temps puisse être chargé et que cette démarche ne soit pas toujours simple à mener.",
+      "Malgré nos sollicitations, nous n’avons pas reçu de retour de votre part. Nous nous voyons donc dans l’obligation de procéder à la clôture de votre dossier.",
+      "Si vous souhaitez toutefois donner suite à votre demande, nous vous invitons à répondre à cet e-mail : nous reviendrons alors vers vous afin d’étudier la suite à y donner.",
+      "Nous restons à votre entière disposition et vous prions d’agréer l’expression de notre considération distinguée."
+    ]
+  },
   refus: {
     objet: "Réponse à votre demande de prise en charge",
     body: (d, x) => [
@@ -159,11 +190,11 @@ const state = () => ({
 function render() {
   const s = state(), t = T[s.type];
   $("docsBox").classList.toggle("hidden", s.type !== "docs");
-  $("motifBox").classList.toggle("hidden", s.type !== "refus");
+  $("motifBox").classList.toggle("hidden", !["refus", "inelig"].includes(s.type));
   const who = [s.civ, s.nom].filter(Boolean).join(" ");
   const hello = "Bonjour" + (who ? " " + who : "") + ",";
   $("objet").value = t.objet + (s.dossier ? " – Dossier n° " + s.dossier : "");
-  $("body").value = [hello, ...(s.dossier ? ["Référence : dossier n° " + s.dossier] : []), ...t.body(null, s), SIGN].join("\n\n").replace("Cordialement,\n\n\nService", "Cordialement,\n\nService");
+  $("body").value = [hello, ...(s.dossier ? ["Référence : dossier n° " + s.dossier] : []), ...t.body(null, s), t.sign ? SIGN.replace("Cordialement,", t.sign) : SIGN].join("\n\n").replace("Cordialement,\n\n\nService", "Cordialement,\n\nService");
 }
 
 function copy(text, msg) {
