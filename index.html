@@ -70,6 +70,8 @@ textarea.body{width:100%;min-height:440px;border:0;resize:vertical;background:tr
     <label><input type="radio" name="type" value="refus"><b>Refus de prise en charge</b><span>Réponse négative, ton empathique</span></label>
     <label><input type="radio" name="type" value="inelig"><b>Refus – non-éligibilité</b><span>Conditions d’éligibilité non remplies</span></label>
     <label><input type="radio" name="type" value="cloture"><b>Clôture – sans réponse du client</b><span>Dossier clôturé faute de retour</span></label>
+    <label><input type="radio" name="type" value="garage"><b>Orienter vers un garage agréé</b><span>Vérification du véhicule par le garage le plus proche</span></label>
+    <label><input type="radio" name="type" value="adblue"><b>AdBlue – dépôt via Stellantis Support</b><span>Demande à soumettre sur la plateforme dédiée</span></label>
   </fieldset>
 
   <div class="row">
@@ -138,6 +140,24 @@ const T = {
       "Nous vous remercions de votre patience et comprenons tout à fait l’attente que cette situation peut représenter pour vous.",
       "Nous vous informons que votre dossier est toujours en cours de traitement par nos équipes. Nous reviendrons vers vous dès qu’une nouvelle information sera disponible.",
       "Nous vous remercions de votre compréhension et restons à votre entière disposition pour toute question. Veuillez agréer l’expression de notre considération distinguée."
+    ]
+  },
+  garage: {
+    objet: "Vérification de votre véhicule – garage agréé",
+    body: () => [
+      "Nous vous remercions de votre demande et comprenons la gêne que cette situation peut occasionner au quotidien.",
+      "Afin de poursuivre le traitement de votre dossier, nous vous invitons à vous rendre dans le garage agréé le plus proche de chez vous, qui pourra examiner votre véhicule et vérifier le bien-fondé de votre demande.",
+      "Une fois cette vérification effectuée, nous vous remercions de bien vouloir nous en communiquer le résultat afin que nous puissions reprendre l’étude de votre dossier.",
+      "Nous restons à votre entière disposition pour toute information complémentaire et vous prions d’agréer l’expression de notre considération distinguée."
+    ]
+  },
+  adblue: {
+    objet: "Votre demande AdBlue – dépôt via Stellantis Support",
+    body: () => [
+      "Nous vous remercions de nous avoir contactés et comprenons la gêne que peut représenter un problème lié à l’AdBlue.",
+      "Afin que votre demande puisse être traitée dans les meilleures conditions, nous vous invitons à la soumettre directement via la plateforme dédiée :\n\nhttps://stellantis-support.com/v2/",
+      "Votre demande y sera enregistrée et prise en charge par les équipes concernées.",
+      "Nous restons à votre entière disposition pour toute information complémentaire et vous prions d’agréer l’expression de notre considération distinguée."
     ]
   },
   geste: {
