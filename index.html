@@ -72,6 +72,7 @@ textarea.body{width:100%;min-height:440px;border:0;resize:vertical;background:tr
     <label><input type="radio" name="type" value="cloture"><b>Clôture – sans réponse du client</b><span>Dossier clôturé faute de retour</span></label>
     <label><input type="radio" name="type" value="garage"><b>Orienter vers un garage agréé</b><span>Vérification du véhicule par le garage le plus proche</span></label>
     <label><input type="radio" name="type" value="adblue"><b>AdBlue – dépôt via Stellantis Support</b><span>Demande à soumettre sur la plateforme dédiée</span></label>
+    <label><input type="radio" name="type" value="relance"><b>Relance – documents en attente</b><span>Nous attendons toujours les pièces demandées</span></label>
   </fieldset>
 
   <div class="row">
@@ -142,6 +143,15 @@ const T = {
       "Nous vous remercions de votre compréhension et restons à votre entière disposition pour toute question. Veuillez agréer l’expression de notre considération distinguée."
     ]
   },
+  relance: {
+    objet: "Relance – documents en attente pour votre dossier",
+    body: (d, x) => [
+      "Nous faisons suite à notre précédent échange et vous remercions de l’attention que vous portez à votre dossier. Nous comprenons que réunir certains documents puisse prendre du temps.",
+      "À ce jour, nous restons dans l’attente des documents demandés afin de pouvoir poursuivre le traitement de votre demande" + (x.docs.length ? " :\n\n" + x.docs.map(s => "- " + s).join("\n") : "."),
+      "Dès réception de ces éléments, nous reprendrons l’étude de votre dossier sans délai.",
+      "Nous restons à votre entière disposition pour toute information complémentaire et vous prions d’agréer l’expression de notre considération distinguée."
+    ]
+  },
   garage: {
     objet: "Vérification de votre véhicule – garage agréé",
     body: () => [
@@ -209,7 +219,7 @@ const state = () => ({
 
 function render() {
   const s = state(), t = T[s.type];
-  $("docsBox").classList.toggle("hidden", s.type !== "docs");
+  $("docsBox").classList.toggle("hidden", !["docs", "relance"].includes(s.type));
   $("motifBox").classList.toggle("hidden", !["refus", "inelig"].includes(s.type));
   const who = [s.civ, s.nom].filter(Boolean).join(" ");
   const hello = "Bonjour" + (who ? " " + who : "") + ",";
